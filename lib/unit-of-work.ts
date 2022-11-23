@@ -3,7 +3,7 @@ import { DataSource, EntityTarget, ObjectLiteral, QueryRunner, ReplicationMode, 
 import { InjectDataSource } from "@nestjs/typeorm";
 import { IsolationLevel } from "typeorm/driver/types/IsolationLevel";
 
-import { ICommitResult, IUnitOfWork } from "$/interfaces";
+import { ICommitResult, IUnitOfWork } from "./interfaces";
 
 
 @Injectable()
