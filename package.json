@@ -1,0 +1,43 @@
+{
+  "name": "nestjs-typeorm-unit-of-work",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "tsc -p tsconfig.json",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odmenwl/nestjs-typeorm-unit-of-work.git"
+  },
+  "keywords": [
+    "nest",
+    "nestjs",
+    "typeorm",
+    "unit-of-work",
+    "transaction"
+  ],
+  "author": "Volodymyr Kasap <[vk26vk@gmail.com](mailto:vk26vk@gmail.com)>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/odmenwl/nestjs-typeorm-unit-of-work/issues"
+  },
+  "homepage": "https://github.com/odmenwl/nestjs-typeorm-unit-of-work#readme",
+  "dependencies": {
+    "@nestjs/common": "^9.2.0",
+    "@nestjs/typeorm": "^9.0.1",
+    "typeorm": "^0.3.10"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.0",
+    "typescript": "^4.9.3"
+  }
+}
