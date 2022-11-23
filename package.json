@@ -2,7 +2,8 @@
   "name": "nestjs-typeorm-unit-of-work",
   "version": "0.0.2",
   "description": "Package for typeorm, which helps to realize \"unit of work\" pattern",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "prepare": "tsc",
     "preversion": "npm run lint",
