@@ -1,6 +1,6 @@
 {
   "name": "nestjs-typeorm-unit-of-work",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Package for typeorm, which helps to realize \"unit of work\" pattern",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
