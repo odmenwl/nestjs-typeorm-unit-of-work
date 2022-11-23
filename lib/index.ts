@@ -1,2 +1,2 @@
-export * from './unit-of-work.service';
+export * from './unit-of-work';
 export * from './interfaces'

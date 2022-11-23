@@ -4,7 +4,8 @@
   "description": "Package for typeorm, which helps to realize \"unit of work\" pattern",
   "main": "index.js",
   "scripts": {
-    "prepare": "tsc -p tsconfig.json",
+    "prepare": "tsc",
+    "preversion": "npm run lint",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
@@ -19,7 +20,7 @@
     "unit-of-work",
     "transaction"
   ],
-  "author": "Volodymyr Kasap <[vk26vk@gmail.com](mailto:vk26vk@gmail.com)>",
+  "author": "Volodymyr Kasap (mailto:vk26vk@gmail.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/odmenwl/nestjs-typeorm-unit-of-work/issues"

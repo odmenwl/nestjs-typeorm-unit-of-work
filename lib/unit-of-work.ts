@@ -7,7 +7,7 @@ import { ICommitResult, IUnitOfWork } from "$/interfaces";
 
 
 @Injectable()
-export class UnitOfWorkService implements IUnitOfWork {
+export class UnitOfWork implements IUnitOfWork {
   private readonly queryRunner: QueryRunner;
 
   constructor (
