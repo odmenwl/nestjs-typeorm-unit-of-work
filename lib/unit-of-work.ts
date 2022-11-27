@@ -1,27 +1,37 @@
-import { Injectable } from "@nestjs/common";
-import { DataSource, EntityTarget, ObjectLiteral, QueryRunner, ReplicationMode, Repository } from "typeorm";
-import { InjectDataSource } from "@nestjs/typeorm";
-import { IsolationLevel } from "typeorm/driver/types/IsolationLevel";
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { EntityTarget, ObjectLiteral, QueryRunner, Repository } from 'typeorm';
+import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
 
-import { ICommitResult, IUnitOfWork } from "./interfaces";
+import { ICommitResult, ITypeormUnitOfWorkModuleOptions, IUnitOfWork } from './interfaces';
+import { TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS } from './constants';
 
 
-@Injectable()
+@Injectable({
+  scope: Scope.REQUEST,
+})
 export class UnitOfWork implements IUnitOfWork {
-  private readonly queryRunner: QueryRunner;
+  private _queryRunner: QueryRunner;
+
+  private get queryRunner () {
+    if (!this._queryRunner) {
+      this.createRunner();
+    }
+
+    return this._queryRunner;
+  }
 
   constructor (
-    @InjectDataSource() private readonly dataSource: DataSource,
-    private mode?: ReplicationMode,
+    @Inject(TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS) private readonly options: ITypeormUnitOfWorkModuleOptions,
   ) {
-    this.queryRunner = this.dataSource.createQueryRunner(mode);
+    this.createRunner();
   }
 
   public getRepository<Entity extends ObjectLiteral>(target: EntityTarget<Entity>): Repository<Entity> {
     return this.queryRunner.manager.getRepository(target);
   }
 
-  public async start (isolationLevel?: IsolationLevel): Promise<void> {
+  public async start (isolationLevel?: IsolationLevel): Promise<void>
+  {
     await this.queryRunner.connect();
     await this.queryRunner.startTransaction(isolationLevel);
   }
@@ -53,5 +63,9 @@ export class UnitOfWork implements IUnitOfWork {
 
   protected async dispose (): Promise<void> {
     await this.queryRunner.release();
+  }
+
+  private createRunner () {
+    this._queryRunner = this.options.dataSource.createQueryRunner();
   }
 }
