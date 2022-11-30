@@ -5,8 +5,11 @@ import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmployeeEntity } from './entities';
 import { DataSource } from 'typeorm';
-import { TypeormUnitOfWorkModule, ITypeormUnitOfWorkModuleOptions } from '../../dist';
-
+import {
+  TypeormUnitOfWorkModule,
+  ITypeormUnitOfWorkModuleOptions,
+} from '../../dist';
+import { ExampleTransaction } from './transactions/example.transaction';
 
 @Module({
   imports: [
@@ -21,16 +24,21 @@ import { TypeormUnitOfWorkModule, ITypeormUnitOfWorkModuleOptions } from '../../
         password: configService.get('DB_PASSWORD'),
         database: configService.getOrThrow('DB_DATABASE'),
         entities: [EmployeeEntity],
-        }),
+      }),
     }),
     TypeormUnitOfWorkModule.forRootAsync({
       inject: [getDataSourceToken()],
-      useFactory: (dataSource: DataSource): ITypeormUnitOfWorkModuleOptions => ({
+      useFactory: (
+        dataSource: DataSource,
+      ): ITypeormUnitOfWorkModuleOptions => ({
         dataSource,
       }),
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    ExampleTransaction,
+  ],
 })
 export class AppModule {}

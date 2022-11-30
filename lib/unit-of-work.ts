@@ -2,9 +2,12 @@ import { Inject, Injectable, Scope } from '@nestjs/common';
 import { EntityTarget, ObjectLiteral, QueryRunner, Repository } from 'typeorm';
 import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
 
-import { ICommitResult, ITypeormUnitOfWorkModuleOptions, IUnitOfWork } from './interfaces';
+import {
+  ICommitResult,
+  ITypeormUnitOfWorkModuleOptions,
+  IUnitOfWork,
+} from './interfaces';
 import { TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS } from './constants';
-
 
 @Injectable({
   scope: Scope.REQUEST,
@@ -12,7 +15,11 @@ import { TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS } from './constants';
 export class UnitOfWork implements IUnitOfWork {
   private _queryRunner: QueryRunner;
 
-  private get queryRunner () {
+  public get manager() {
+    return this.queryRunner.manager;
+  }
+
+  private get queryRunner() {
     if (!this._queryRunner) {
       this.createRunner();
     }
@@ -20,26 +27,30 @@ export class UnitOfWork implements IUnitOfWork {
     return this._queryRunner;
   }
 
-  constructor (
-    @Inject(TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS) private readonly options: ITypeormUnitOfWorkModuleOptions,
+  constructor(
+    @Inject(TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS)
+    private readonly options: ITypeormUnitOfWorkModuleOptions,
   ) {
     this.createRunner();
   }
 
-  public getRepository<Entity extends ObjectLiteral>(target: EntityTarget<Entity>): Repository<Entity> {
-    return this.queryRunner.manager.getRepository(target);
+  public getRepository<Entity extends ObjectLiteral>(
+    target: EntityTarget<Entity>,
+  ): Repository<Entity> {
+    return this.manager.getRepository(target);
   }
 
-  public async start (isolationLevel?: IsolationLevel): Promise<void>
-  {
+  public async start(isolationLevel?: IsolationLevel): Promise<void> {
     await this.queryRunner.connect();
     await this.queryRunner.startTransaction(isolationLevel);
   }
 
-  public async commit<T>(fn: () => Promise<T>): Promise<ICommitResult<T>> {
+  public async commit<T = undefined>(
+    fn: () => Promise<T>,
+  ): Promise<ICommitResult<T>> {
     const result: ICommitResult<T> = {
       isSuccess: false,
-      data: null,
+      data: undefined,
     };
 
     try {
@@ -57,15 +68,15 @@ export class UnitOfWork implements IUnitOfWork {
     return result;
   }
 
-  public async rollback () {
+  public async rollback() {
     await this.queryRunner.rollbackTransaction();
   }
 
-  protected async dispose (): Promise<void> {
+  protected async dispose(): Promise<void> {
     await this.queryRunner.release();
   }
 
-  private createRunner () {
+  private createRunner() {
     this._queryRunner = this.options.dataSource.createQueryRunner();
   }
 }

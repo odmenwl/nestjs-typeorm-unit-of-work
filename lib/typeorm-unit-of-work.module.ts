@@ -3,19 +3,26 @@ import {
   ITypeormUnitOfWorkModuleAsyncOptions,
   ITypeormUnitOfWorkModuleOptionsFactory,
 } from './interfaces';
-import { TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS } from './constants';
+import { BASE_TRANSACTION_PROVIDER_NAME, TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS } from './constants';
 import { UnitOfWork } from './unit-of-work';
 import { getTypeormUnitOfWorkToken } from './utils';
-
+import { BaseTransaction } from './base.transaction';
 
 @Module({})
 export class TypeormUnitOfWorkModule {
-  public static forRootAsync (options: ITypeormUnitOfWorkModuleAsyncOptions): DynamicModule {
+  public static forRootAsync(
+    options: ITypeormUnitOfWorkModuleAsyncOptions,
+  ): DynamicModule {
     const asyncProviders = this.createAsyncProviders(options);
 
     const unitOfWorkProvider: Provider = {
       provide: getTypeormUnitOfWorkToken(options.dataSourceName),
       useClass: UnitOfWork,
+    };
+
+    const abstractTransaction: Provider = {
+      provide: BASE_TRANSACTION_PROVIDER_NAME,
+      useClass: BaseTransaction,
     };
 
     return {
@@ -25,11 +32,13 @@ export class TypeormUnitOfWorkModule {
       providers: [
         ...asyncProviders,
         unitOfWorkProvider,
+        abstractTransaction,
       ],
       exports: [
         unitOfWorkProvider,
-      ]
-    }
+        abstractTransaction,
+      ],
+    };
   }
 
   private static createAsyncProviders(
@@ -38,7 +47,8 @@ export class TypeormUnitOfWorkModule {
     if (options.useExisting || options.useFactory) {
       return [this.createAsyncOptionsProvider(options)];
     }
-    const useClass = options.useClass as Type<ITypeormUnitOfWorkModuleOptionsFactory>;
+    const useClass =
+      options.useClass as Type<ITypeormUnitOfWorkModuleOptionsFactory>;
     return [
       this.createAsyncOptionsProvider(options),
       {
@@ -48,25 +58,30 @@ export class TypeormUnitOfWorkModule {
     ];
   }
 
-  private static createAsyncOptionsProvider (options: ITypeormUnitOfWorkModuleAsyncOptions): Provider {
+  private static createAsyncOptionsProvider(
+    options: ITypeormUnitOfWorkModuleAsyncOptions,
+  ): Provider {
     if (options.useFactory) {
       return {
         provide: TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS,
         useFactory: options.useFactory,
         inject: options.inject || [],
-      }
+      };
     }
 
     const inject = [
-      (options.useClass || options.useExisting) as Type<ITypeormUnitOfWorkModuleOptionsFactory>,
-    ]
+      (options.useClass ||
+        options.useExisting) as Type<ITypeormUnitOfWorkModuleOptionsFactory>,
+    ];
 
     return {
       provide: TYPEORM_UNIT_OF_WORK_MODULE_OPTIONS,
-      useFactory: async (optionsFactory: ITypeormUnitOfWorkModuleOptionsFactory) => {
+      useFactory: async (
+        optionsFactory: ITypeormUnitOfWorkModuleOptionsFactory,
+      ) => {
         await optionsFactory.createOptions();
       },
       inject,
-    }
+    };
   }
 }
